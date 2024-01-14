@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
@@ -37,10 +38,26 @@ class CarsUtils:
         scaler = preprocessing.StandardScaler()
 
         # Select columns to standardise
-        numerical_cols = ['mpg', 'cylinders', 'displacement', 'horsepower', 'weight', 'accel', 'model_year', 'origin']
+        numerical_cols = ['mpg', 'displacement', 'horsepower', 'weight', 'accel']
 
         df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
         return df
+
+    @staticmethod
+    def plot_features_vs_mpg(df):
+        features = ['cylinders', 'displacement', 'horsepower', 'weight', 'accel', 'model_year', 'origin']
+
+        # Create a figure with multiple subplots
+        fig, axs = plt.subplots(len(features), figsize=(8, 20))
+
+        for i, feature in enumerate(features):
+            axs[i].scatter(df[feature], df['mpg'])
+            axs[i].set_xlabel(feature)
+            axs[i].set_ylabel('MPG')
+            axs[i].set_title(f'MPG vs {feature}')
+
+        plt.tight_layout()
+        plt.show()
 
 
 def main():
@@ -52,10 +69,14 @@ def main():
     # Split the data
     train_data, test_data = train_test_split(df_cars, test_size=0.20, random_state=42)
 
-    # Standardise the training dataset
-    train_data_standardised = CarsUtils.standardise_data(train_data)
+    print(train_data.to_string())
 
-    print(df_cars.to_string())
+    # Standardise the training dataset
+    CarsUtils.standardise_data(train_data)
+
+    CarsUtils.plot_features_vs_mpg(train_data)
+
+    # print(df_cars.to_string())
 
     return 0
 
