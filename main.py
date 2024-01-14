@@ -10,7 +10,7 @@ class CarsUtils:
     @staticmethod
     def read_cars_from_file(filename) -> pd.DataFrame:
         car_list = []
-        with open(filename, 'r') as file:
+        with open(filename, "r") as file:
             for line in file:
                 parts = line.split()
                 try:
@@ -18,17 +18,17 @@ class CarsUtils:
                 except ValueError:
                     continue
                 model_year, origin = int(model_year), int(origin)
-                name = ' '.join(parts[8:]).replace('"', '')
+                name = " ".join(parts[8:]).replace('"', '')
                 car_dict = {
-                    'mpg': mpg,
-                    'cylinders': cylinders,
-                    'displacement': displacement,
-                    'horsepower': horsepower,
-                    'weight': weight,
-                    'accel': accel,
-                    'model_year': model_year,
-                    'origin': origin,
-                    'name': name
+                    "mpg": mpg,
+                    "cylinders": cylinders,
+                    "displacement": displacement,
+                    "horsepower": horsepower,
+                    "weight": weight,
+                    "accel": accel,
+                    "model_year": model_year,
+                    "origin": origin,
+                    "name": name
                 }
                 car_list.append(car_dict)
         return pd.DataFrame(car_list)
@@ -38,23 +38,24 @@ class CarsUtils:
         scaler = preprocessing.StandardScaler()
 
         # Select columns to standardise
-        numerical_cols = ['mpg', 'displacement', 'horsepower', 'weight', 'accel']
+        numerical_cols = ["mpg", "displacement", "horsepower", "weight", "accel"]
 
         df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
         return df
 
     @staticmethod
     def plot_features_vs_mpg(df):
-        features = ['cylinders', 'displacement', 'horsepower', 'weight', 'accel', 'model_year', 'origin']
+        # TODO: Refactor into one-hot encoded origin compatible plotting
+        features = ["cylinders", "displacement", "horsepower", "weight", "accel", "model_year", "USA"]
 
         # Create a figure with multiple subplots
         fig, axs = plt.subplots(len(features), figsize=(8, 20))
 
         for i, feature in enumerate(features):
-            axs[i].scatter(df[feature], df['mpg'])
+            axs[i].scatter(df[feature], df["mpg"])
             axs[i].set_xlabel(feature)
-            axs[i].set_ylabel('MPG')
-            axs[i].set_title(f'MPG vs {feature}')
+            axs[i].set_ylabel("MPG")
+            axs[i].set_title(f"MPG vs {feature}")
 
         plt.tight_layout()
         plt.show()
@@ -63,8 +64,14 @@ class CarsUtils:
 def main():
 
     # Read the data
-    file_path = 'auto-mpg.data'
+    file_path = "auto-mpg.data"
     df_cars = CarsUtils.read_cars_from_file(file_path)
+
+    # Perform one-hot encoding on the categorical origin variable
+    origin = df_cars.pop("origin")
+    df_cars["USA"] = (origin == 1) * 1.0
+    df_cars["Europe"] = (origin == 2) * 1.0
+    df_cars["Japan"] = (origin == 3) * 1.0
 
     # Split the data
     train_data, test_data = train_test_split(df_cars, test_size=0.20, random_state=42)
@@ -81,5 +88,5 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
