@@ -44,7 +44,7 @@ class CarsUtils:
     @staticmethod
     def plot_features_vs_mpg(df):
         # TODO: Refactor into one-hot encoded origin compatible plotting
-        features = ["cylinders", "displacement", "horsepower", "weight", "accel", "model_year", "USA"]
+        features = ["cylinders", "displacement", "horsepower", "weight", "accel", "model_year"]
 
         # Create a figure with multiple subplots
         fig, axs = plt.subplots(len(features), figsize=(8, 20))
@@ -53,9 +53,22 @@ class CarsUtils:
             axs[i].scatter(df[feature], df["mpg"])
             axs[i].set_xlabel(feature)
             axs[i].set_ylabel("MPG")
-            axs[i].set_title(f"MPG vs {feature}")
+            axs[i].set_title(f"{feature} over MPG")
 
         plt.tight_layout()
+        plt.show()
+
+    @staticmethod
+    def plot_correlation_heatmap(df: pd.DataFrame):
+        plt.figure(figsize=(10, 8))
+        corr = df.corr()
+        mask = np.triu(corr)
+        heatmap = sns.heatmap(corr, annot=True, mask=mask, fmt='.2f')
+        heatmap.set_xticklabels(corr.columns, fontsize=13)
+        heatmap.set_yticklabels(corr.columns, fontsize=13)
+        plt.title("Pearson correlation coefficient across attributes")
+        plt.subplots_adjust(bottom=0.19)
+        plt.subplots_adjust(left=0.19)
         plt.show()
 
 
@@ -64,13 +77,15 @@ def main():
     # Read the data
     file_path = "auto-mpg.data"
     df_cars = CarsUtils.read_cars_from_file(file_path)
-    columns_to_normalise = ["displacement", "horsepower", "weight", "accel"]
+    columns_to_normalise = ["mpg", "displacement", "horsepower", "weight", "accel"]
 
     # Perform one-hot encoding on the categorical origin variable
     origin = df_cars.pop("origin")
     df_cars["USA"] = (origin == 1) * 1.0
     df_cars["Europe"] = (origin == 2) * 1.0
     df_cars["Japan"] = (origin == 3) * 1.0
+
+    df_cars.pop("name")
 
     # Split the data
     train_data, test_data = train_test_split(df_cars, test_size=0.20, random_state=42)
@@ -79,19 +94,13 @@ def main():
     train_stats = train_data.describe()
     train_stats.pop("mpg")
     train_stats = train_stats.transpose()
-    # print(train_stats.to_string())
 
     # Normalise the training dataset
     CarsUtils.normalise_data(train_data, columns_to_normalise)
 
-    print(train_data.to_string())
-
-    pass
-
-    # Visualisation
-    # CarsUtils.plot_features_vs_mpg(train_data)
-
-    # print(df_cars.to_string())
+    # Plot correlation heatmap
+    CarsUtils.plot_correlation_heatmap(train_data)
+    CarsUtils.plot_features_vs_mpg(train_data)
 
     return 0
 
