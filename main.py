@@ -34,13 +34,11 @@ class CarsUtils:
         return pd.DataFrame(car_list)
 
     @staticmethod
-    def standardise_data(df) -> pd.DataFrame:
-        scaler = preprocessing.StandardScaler()
+    def normalise_data(df, columns) -> pd.DataFrame:
+        scaler = preprocessing.MinMaxScaler()
 
-        # Select columns to standardise
-        numerical_cols = ["mpg", "displacement", "horsepower", "weight", "accel"]
-
-        df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
+        # Apply normalization to specified columns
+        df[columns] = scaler.fit_transform(df[columns])
         return df
 
     @staticmethod
@@ -66,6 +64,7 @@ def main():
     # Read the data
     file_path = "auto-mpg.data"
     df_cars = CarsUtils.read_cars_from_file(file_path)
+    columns_to_normalise = ["displacement", "horsepower", "weight", "accel"]
 
     # Perform one-hot encoding on the categorical origin variable
     origin = df_cars.pop("origin")
@@ -76,12 +75,21 @@ def main():
     # Split the data
     train_data, test_data = train_test_split(df_cars, test_size=0.20, random_state=42)
 
+    # Inspect the data
+    train_stats = train_data.describe()
+    train_stats.pop("mpg")
+    train_stats = train_stats.transpose()
+    # print(train_stats.to_string())
+
+    # Normalise the training dataset
+    CarsUtils.normalise_data(train_data, columns_to_normalise)
+
     print(train_data.to_string())
 
-    # Standardise the training dataset
-    CarsUtils.standardise_data(train_data)
+    pass
 
-    CarsUtils.plot_features_vs_mpg(train_data)
+    # Visualisation
+    # CarsUtils.plot_features_vs_mpg(train_data)
 
     # print(df_cars.to_string())
 
