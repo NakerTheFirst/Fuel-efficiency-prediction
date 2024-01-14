@@ -71,6 +71,15 @@ class CarsUtils:
         plt.subplots_adjust(left=0.19)
         plt.show()
 
+    @staticmethod
+    def plot_histogram(df: pd.DataFrame, feature_name: str):
+        plt.figure(figsize=(10, 5))
+        ax = sns.countplot(x=feature_name, data=df, color='#0487c4')
+        ax.bar_label(ax.containers[0], label_type='edge')
+        plt.xlabel(feature_name, fontsize=13)
+        plt.ylabel("Cars count", fontsize=13)
+        plt.show()
+
 
 def main():
 
@@ -99,8 +108,12 @@ def main():
     CarsUtils.normalise_data(train_data, columns_to_normalise)
 
     # Plot correlation heatmap
-    CarsUtils.plot_correlation_heatmap(train_data)
-    CarsUtils.plot_features_vs_mpg(train_data)
+    # CarsUtils.plot_correlation_heatmap(train_data)
+
+    # CarsUtils.plot_features_vs_mpg(train_data)
+
+    # Plot histogram of model year column
+    CarsUtils.plot_histogram(train_data, "model_year")
 
     return 0
 
