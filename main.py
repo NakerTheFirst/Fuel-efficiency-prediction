@@ -42,19 +42,24 @@ class CarsUtils:
         return df
 
     @staticmethod
-    def plot_features_vs_mpg(df):
-        # TODO: Refactor into one-hot encoded origin compatible plotting
-        features = ["cylinders", "displacement", "horsepower", "weight", "accel", "model_year"]
-
+    def plot_features_vs_mpg(df, features, size=(6, 14)):
         # Create a figure with multiple subplots
-        fig, axs = plt.subplots(len(features), figsize=(8, 20))
+        fig, axs = plt.subplots(len(features), figsize=size)
 
         for i, feature in enumerate(features):
-            axs[i].scatter(df[feature], df["mpg"])
+            axs[i].scatter(df[feature], df["mpg"], color='#0487c4')
             axs[i].set_xlabel(feature)
             axs[i].set_ylabel("MPG")
-            axs[i].set_title(f"{feature} over MPG")
 
+        plt.tight_layout()
+        plt.show()
+
+    @staticmethod
+    def plot_feature_vs_mpg(df, feature, label_name):
+        plt.figure(figsize=(6, 3.5))
+        sns.scatterplot(x=feature, y="mpg", data=df, color='#0487c4')
+        plt.xlabel(label_name, fontsize=13)
+        plt.ylabel("MPG", fontsize=13)
         plt.tight_layout()
         plt.show()
 
@@ -72,12 +77,12 @@ class CarsUtils:
         plt.show()
 
     @staticmethod
-    def plot_histogram(df: pd.DataFrame, feature_name: str):
-        plt.figure(figsize=(10, 5))
+    def plot_histogram(df: pd.DataFrame, feature_name: str, label_name):
+        plt.figure(figsize=(8, 5))
         ax = sns.countplot(x=feature_name, data=df, color='#0487c4')
         ax.bar_label(ax.containers[0], label_type='edge')
-        plt.xlabel(feature_name, fontsize=13)
-        plt.ylabel("Cars count", fontsize=13)
+        plt.xlabel(label_name, fontsize=13)
+        plt.ylabel("Liczba samochodów", fontsize=13)
         plt.show()
 
 
@@ -87,6 +92,8 @@ def main():
     file_path = "auto-mpg.data"
     df_cars = CarsUtils.read_cars_from_file(file_path)
     columns_to_normalise = ["mpg", "displacement", "horsepower", "weight", "accel"]
+    continuous_features = ["displacement", "horsepower", "weight", "accel"]
+    discrete_features = ["cylinders", "model_year"]
 
     # Perform one-hot encoding on the categorical origin variable
     origin = df_cars.pop("origin")
@@ -110,10 +117,13 @@ def main():
     # Plot correlation heatmap
     # CarsUtils.plot_correlation_heatmap(train_data)
 
-    # CarsUtils.plot_features_vs_mpg(train_data)
+    # CarsUtils.plot_features_vs_mpg(train_data, continuous_features)
+    # CarsUtils.plot_features_vs_mpg(train_data, discrete_features, (6, 7))
+    CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
+    CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
 
     # Plot histogram of model year column
-    CarsUtils.plot_histogram(train_data, "model_year")
+    CarsUtils.plot_histogram(train_data, "model_year", "Rok produkcji")
 
     return 0
 
