@@ -47,7 +47,7 @@ class CarsUtils:
         fig, axs = plt.subplots(len(features), figsize=size)
 
         for i, feature in enumerate(features):
-            axs[i].scatter(df[feature], df["mpg"], color='#0487c4')
+            axs[i].scatter(df[feature], df["mpg"], color="#0487c4")
             axs[i].set_xlabel(feature)
             axs[i].set_ylabel("MPG")
 
@@ -57,7 +57,7 @@ class CarsUtils:
     @staticmethod
     def plot_feature_vs_mpg(df, feature, label_name):
         plt.figure(figsize=(6, 3.5))
-        sns.scatterplot(x=feature, y="mpg", data=df, color='#0487c4')
+        sns.scatterplot(x=feature, y="mpg", data=df, color="#0487c4")
         plt.xlabel(label_name, fontsize=13)
         plt.ylabel("MPG", fontsize=13)
         plt.tight_layout()
@@ -68,7 +68,7 @@ class CarsUtils:
         plt.figure(figsize=(10, 8))
         corr = df.corr()
         mask = np.triu(corr)
-        heatmap = sns.heatmap(corr, annot=True, mask=mask, fmt='.2f')
+        heatmap = sns.heatmap(corr, annot=True, mask=mask, fmt=".2f")
         heatmap.set_xticklabels(corr.columns, fontsize=13)
         heatmap.set_yticklabels(corr.columns, fontsize=13)
         plt.title("Pearson correlation coefficient across attributes")
@@ -79,10 +79,18 @@ class CarsUtils:
     @staticmethod
     def plot_histogram(df: pd.DataFrame, feature_name: str, label_name):
         plt.figure(figsize=(8, 5))
-        ax = sns.countplot(x=feature_name, data=df, color='#0487c4')
-        ax.bar_label(ax.containers[0], label_type='edge')
+        ax = sns.countplot(x=feature_name, data=df, color="#0487c4")
+        ax.bar_label(ax.containers[0], label_type="edge")
         plt.xlabel(label_name, fontsize=13)
         plt.ylabel("Liczba samochodów", fontsize=13)
+        plt.show()
+
+    @staticmethod
+    def plot_line(df: pd.DataFrame, x_feature_name: str, y_feature_name: str, x_label_name: str, y_label_name="MPG"):
+        plt.figure(figsize=(8, 5))
+        plt.xlabel(x_label_name, fontsize=13)
+        plt.ylabel(y_label_name, fontsize=13)
+        sns.lineplot(x=x_feature_name, y=y_feature_name, data=df, color="#0487c4")
         plt.show()
 
 
@@ -120,10 +128,12 @@ def main():
     # CarsUtils.plot_features_vs_mpg(train_data, continuous_features)
     # CarsUtils.plot_features_vs_mpg(train_data, discrete_features, (6, 7))
     CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
-    CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
+    # CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
 
     # Plot histogram of model year column
     CarsUtils.plot_histogram(train_data, "model_year", "Rok produkcji")
+
+    CarsUtils.plot_line(train_data, "model_year", "mpg", "Rok produkcji")
 
     return 0
 
