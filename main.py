@@ -4,6 +4,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
 
 
 class CarsUtils:
@@ -48,6 +51,21 @@ class CarsUtils:
         return df
 
     @staticmethod
+    def build_model(df):
+        model = keras.Sequential([
+            layers.Dense(64, activation=tf.nn.relu, input_shape=[len(df.keys())]),
+            layers.Dense(64, activation=tf.nn.relu),
+            layers.Dense(1)
+        ])
+        optimiser = tf.keras.optimizers.RMSprop(0.001)
+        model.compile(loss='mean_squared_error',
+                      optimizer=optimiser,
+                      metrics='mean_squared_error')
+
+        return model
+
+    # TODO: Delete this later
+    @staticmethod
     def plot_features_vs_mpg(df, features, size=(6, 14)):
         # Create a figure with multiple subplots
         fig, axs = plt.subplots(len(features), figsize=size)
@@ -70,15 +88,11 @@ class CarsUtils:
         plt.show()
 
     @staticmethod
-    def plot_correlation_heatmap(df: pd.DataFrame):
-        x_labels = ["Litry na 100 km", "Liczba cylindrów", "Objętość cylindra", "Liczba KM", "Waga pojazdu",
-                    "Przyspieszenie", "Rok produkcji"]
+    def plot_correlation_heatmap(df: pd.DataFrame, labels):
+        x_labels = labels[:7]
         y_labels = list(x_labels)
         x_labels[-1] = ""
         y_labels[0] = ""
-
-        print(y_labels)
-        print(x_labels)
 
         plt.figure(figsize=(10, 8))
         corr = df.corr()
@@ -116,9 +130,16 @@ class CarsUtils:
         sns.lineplot(x=x_feature_name, y=y_feature_name, data=df, color="#0487c4")
         plt.show()
 
+    @staticmethod
+    def plot_point(df: pd.DataFrame, x_feature_name: str, y_feature_name: str, x_label: str, y_label: str):
+        plt.figure(figsize=(8, 5))
+        sns.pointplot(x=x_feature_name, y=df[y_feature_name], data=df, color="#0487c4")
+        plt.xlabel(x_label, fontsize=13)
+        plt.ylabel(y_label, fontsize=13)
+        plt.show()
+
 
 def main():
-
     # General preprocessing
     file_path = "auto-mpg.data"
     df_cars_raw = CarsUtils.read_cars_from_file(file_path)
@@ -127,6 +148,8 @@ def main():
     df_cars.pop("name")
     df_cars.pop("mpg")
 
+    labels = ["Litry na 100 km", "Liczba cylindrów", "Objętość cylindra", "Liczba KM", "Waga pojazdu",
+              "Przyspieszenie", "Rok produkcji", "Stany Zjednoczone", "Europa", "Japonia"]
     cols_order = ["litres_per_100km", "cylinders", "displacement", "horsepower", "weight", "accel", "model_year"]
     columns_to_normalise = ["litres_per_100km", "displacement", "horsepower", "weight", "accel"]
 
@@ -145,13 +168,22 @@ def main():
     train_stats = train_stats.transpose()
 
     CarsUtils.normalise_data(train_data, columns_to_normalise)
-    # print(train_data.to_string())
+
+    # Build the model
+    model = CarsUtils.build_model(train_data)
+    model.summary()
+
+    example_batch = train_data[:10]
+    example_result = model.predict(example_batch)
+    print(example_result)
 
     # Visualisations
-    # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3])
+    # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
     # CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
     # CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
     # CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
+    # CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
+    # CarsUtils.plot_point(train_data, origin, "horsepower", labels[6], labels[3])
 
     # Visualisations not used in report
     # CarsUtils.plot_histogram(train_data, "litres_per_100km", "Litry na 100 km")
