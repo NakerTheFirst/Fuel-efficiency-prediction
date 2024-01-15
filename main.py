@@ -71,20 +71,38 @@ class CarsUtils:
 
     @staticmethod
     def plot_correlation_heatmap(df: pd.DataFrame):
+        x_labels = ["Litry na 100 km", "Liczba cylindrów", "Objętość cylindra", "Liczba KM", "Waga pojazdu",
+                    "Przyspieszenie", "Rok produkcji"]
+        y_labels = list(x_labels)
+        x_labels[-1] = ""
+        y_labels[0] = ""
+
+        print(y_labels)
+        print(x_labels)
+
         plt.figure(figsize=(10, 8))
         corr = df.corr()
         mask = np.triu(corr)
         heatmap = sns.heatmap(corr, annot=True, mask=mask, fmt=".2f")
-        heatmap.set_xticklabels(corr.columns, fontsize=13)
-        heatmap.set_yticklabels(corr.columns, fontsize=13)
+        heatmap.set_xticklabels(x_labels, fontsize=13)
+        heatmap.set_yticklabels(y_labels, fontsize=13)
         plt.subplots_adjust(bottom=0.25)
         plt.subplots_adjust(left=0.19)
         plt.show()
 
     @staticmethod
+    def plot_countplot(df: pd.DataFrame, feature_name: str, label_name):
+        plt.figure(figsize=(8, 5))
+        ax = sns.countplot(x=df[feature_name], color="#0487c4")
+        ax.bar_label(ax.containers[0], label_type="edge")
+        plt.xlabel(label_name, fontsize=13)
+        plt.ylabel("Liczba samochodów", fontsize=13)
+        plt.show()
+
+    @staticmethod
     def plot_histogram(df: pd.DataFrame, feature_name: str, label_name):
         plt.figure(figsize=(8, 5))
-        ax = sns.countplot(x=feature_name, data=df, color="#0487c4")
+        ax = sns.histplot(data=df, x=df[feature_name], color="#0487c4")
         ax.bar_label(ax.containers[0], label_type="edge")
         plt.xlabel(label_name, fontsize=13)
         plt.ylabel("Liczba samochodów", fontsize=13)
@@ -127,14 +145,17 @@ def main():
     train_stats = train_stats.transpose()
 
     CarsUtils.normalise_data(train_data, columns_to_normalise)
-    print(train_data.to_string())
+    # print(train_data.to_string())
 
     # Visualisations
-    # CarsUtils.plot_correlation_heatmap(train_data)
+    # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3])
     # CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
     # CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
-    # CarsUtils.plot_histogram(train_data, "model_year", "Rok produkcji")
-    CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
+    # CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
+
+    # Visualisations not used in report
+    # CarsUtils.plot_histogram(train_data, "litres_per_100km", "Litry na 100 km")
+    # CarsUtils.plot_countplot(train_data, "model_year", "Rok produkcji")
 
     return 0
 
