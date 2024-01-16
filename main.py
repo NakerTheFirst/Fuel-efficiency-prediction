@@ -57,10 +57,9 @@ class CarsUtils:
             layers.Dense(64, activation=tf.nn.relu),
             layers.Dense(1)
         ])
-        optimiser = tf.keras.optimizers.RMSprop(0.001)
-        model.compile(loss='mean_squared_error',
-                      optimizer=optimiser,
-                      metrics='mean_squared_error')
+        # Change the hyperparameters later here
+        optimiser = tf.keras.optimizers.RMSprop(0.005)
+        model.compile(loss='mean_absolute_error', optimizer=optimiser, metrics='mean_squared_error')
 
         return model
 
@@ -138,6 +137,34 @@ class CarsUtils:
         plt.ylabel(y_label, fontsize=13)
         plt.show()
 
+    @staticmethod
+    def plot_history(history):
+        hist = pd.DataFrame(history.history)
+        hist['epoch'] = history.epoch
+
+        plt.figure()
+        plt.xlabel('Epoka')
+        plt.ylabel('Błąd średniokwadratowy [litry na 100 km]')
+        plt.plot(hist['epoch'], hist['mean_squared_error'], label='Train Dataset Error')
+        plt.ylim([0, 20])
+        plt.legend()
+
+        plt.figure()
+        plt.xlabel('Epoka')
+        plt.ylabel('Średni błąd bezwzględny [litry na 100 km]')
+        plt.plot(hist['epoch'], hist['loss'], label='Train Dataset Error')
+        plt.ylim([0, 5])
+        plt.legend()
+
+        plt.show()
+
+
+class PrintDot(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0:
+            print('')
+        print('.', end='')
+
 
 def main():
     # General preprocessing
@@ -151,7 +178,7 @@ def main():
     labels = ["Litry na 100 km", "Liczba cylindrów", "Objętość cylindra", "Liczba KM", "Waga pojazdu",
               "Przyspieszenie", "Rok produkcji", "Stany Zjednoczone", "Europa", "Japonia"]
     cols_order = ["litres_per_100km", "cylinders", "displacement", "horsepower", "weight", "accel", "model_year"]
-    columns_to_normalise = ["litres_per_100km", "displacement", "horsepower", "weight", "accel"]
+    columns_to_normalise = ["displacement", "horsepower", "weight", "accel"]
 
     df_cars = df_cars.reindex(columns=cols_order)
 
@@ -163,19 +190,18 @@ def main():
     # Split the data
     train_data, test_data = train_test_split(df_cars, test_size=0.20, random_state=42)
 
+    train_labels = train_data.pop("litres_per_100km")
+    test_labels = test_data.pop("litres_per_100km")
+
     # Inspect the data
     train_stats = train_data.describe()
     train_stats = train_stats.transpose()
 
     CarsUtils.normalise_data(train_data, columns_to_normalise)
+    CarsUtils.normalise_data(test_data, columns_to_normalise)
 
     # Build the model
     model = CarsUtils.build_model(train_data)
-    model.summary()
-
-    example_batch = train_data[:10]
-    example_result = model.predict(example_batch)
-    print(example_result)
 
     # Visualisations
     # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
