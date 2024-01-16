@@ -128,20 +128,34 @@ class CarsUtils:
         hist = pd.DataFrame(history.history)
         hist['epoch'] = history.epoch
 
-        plt.figure()
-        plt.xlabel('Epoka')
-        plt.ylabel('Błąd średniokwadratowy [litry na 100 km]')
-        plt.plot(hist['epoch'], hist['mean_squared_error'], label='Train Dataset Error')
+        plt.figure(figsize=(8, 5))
+        plt.xlabel('Liczba epok', fontsize=13)
+        plt.ylabel('Błąd [litry na 100 km]', fontsize=13)
+        sns.lineplot(x=hist['epoch'], y=hist['mean_squared_error'], label="Średni błąd kwadratowy (MSE)", color="#0487c4")
+        sns.lineplot(x=hist['epoch'], y=hist['loss'], label="Średni błąd bezwzględny (MAE)", color="#ffa500")
         plt.ylim([0, 20])
         plt.legend()
+        plt.show()
 
-        plt.figure()
-        plt.xlabel('Epoka')
-        plt.ylabel('Średni błąd bezwzględny [litry na 100 km]')
-        plt.plot(hist['epoch'], hist['loss'], label='Train Dataset Error')
-        plt.ylim([0, 5])
-        plt.legend()
+    @staticmethod
+    def plot_predicted_vs_true(test_predictions, test_true):
+        sns.scatterplot(x=test_true, y=test_predictions, color="#0487c4")
+        # plt.scatter(test_true, test_predictions)
+        plt.xlabel('Prawdziwe wartości [Litry na 100 km]', fontsize=13)
+        plt.ylabel('Predyktory [Litry na 100 km]', fontsize=13)
+        plt.axis('equal')
+        plt.axis('square')
+        plt.xlim([0, plt.xlim()[1]])
+        plt.ylim([0, plt.ylim()[1]])
+        plt.plot([-100, 100], [-100, 100])
+        plt.show()
 
+    @staticmethod
+    def plot_regular_histogram(feature):
+        plt.figure(figsize=(8, 5))
+        sns.histplot(feature, bins=20, color='#0487c4')
+        plt.xlabel("Wartości błędu predykcji [Litry na 100 km]", fontsize=13)
+        plt.ylabel("Liczba występowań", fontsize=13)
         plt.show()
 
 
@@ -208,6 +222,9 @@ def main():
     print(f"Testing set Mean Absolute Error: {round(loss, 2)} Litres per 100 km")
     print(f"Testing set Mean Squared Error: {round(mse, 2)} Litres per 100 km")
 
+    test_predictions = model.predict(test_data).flatten()
+    error = test_predictions - test_labels
+
     # Visualisations
     # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
     # CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
@@ -215,6 +232,8 @@ def main():
     # CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
     # CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
     # CarsUtils.plot_point(train_data, origin, "horsepower", labels[6], labels[3])
+    CarsUtils.plot_predicted_vs_true(test_predictions, test_labels)
+    CarsUtils.plot_regular_histogram(error)
 
     # Visualisations not used in report
     # CarsUtils.plot_histogram(train_data, "litres_per_100km", "Litry na 100 km")
