@@ -63,20 +63,6 @@ class CarsUtils:
 
         return model
 
-    # TODO: Delete this later
-    @staticmethod
-    def plot_features_vs_mpg(df, features, size=(6, 14)):
-        # Create a figure with multiple subplots
-        fig, axs = plt.subplots(len(features), figsize=size)
-
-        for i, feature in enumerate(features):
-            axs[i].scatter(df[feature], df["mpg"], color="#0487c4")
-            axs[i].set_xlabel(feature)
-            axs[i].set_ylabel("MPG")
-
-        plt.tight_layout()
-        plt.show()
-
     @staticmethod
     def plot_feature_vs_mpg(df, feature, label_name):
         plt.figure(figsize=(6, 3.5))
