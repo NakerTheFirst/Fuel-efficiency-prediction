@@ -203,6 +203,25 @@ def main():
     # Build the model
     model = CarsUtils.build_model(train_data)
 
+    # Train the model
+    epochs = 1000
+    early_stop = keras.callbacks.EarlyStopping(monitor='loss', patience=15)
+
+    hstr = model.fit(train_data, train_labels, epochs=epochs, callbacks=[early_stop, PrintDot()])
+
+    print()
+    hist = pd.DataFrame(hstr.history)
+    hist['epoch'] = hstr.epoch
+    print(hist.tail())
+
+    CarsUtils.plot_history(hstr)
+
+    # Test on test dataset
+    loss, mse = model.evaluate(test_data, test_labels, verbose=0)
+
+    print(f"Testing set Mean Absolute Error: {round(loss, 2)} Litres per 100 km")
+    print(f"Testing set Mean Squared Error: {round(mse, 2)} Litres per 100 km")
+
     # Visualisations
     # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
     # CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
