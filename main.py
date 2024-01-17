@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 import sklearn.metrics
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
 from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
 
 
@@ -79,24 +76,6 @@ class CarsUtils:
         plt.show()
 
     @staticmethod
-    def plot_countplot(df: pd.DataFrame, feature_name: str, label_name):
-        plt.figure(figsize=(8, 5))
-        ax = sns.countplot(x=df[feature_name], color="#0487c4")
-        ax.bar_label(ax.containers[0], label_type="edge")
-        plt.xlabel(label_name, fontsize=13)
-        plt.ylabel("Liczba samochodów", fontsize=13)
-        plt.show()
-
-    @staticmethod
-    def plot_histogram(df: pd.DataFrame, feature_name: str, label_name):
-        plt.figure(figsize=(8, 5))
-        ax = sns.histplot(data=df, x=df[feature_name], color="#0487c4")
-        ax.bar_label(ax.containers[0], label_type="edge")
-        plt.xlabel(label_name, fontsize=13)
-        plt.ylabel("Liczba samochodów", fontsize=13)
-        plt.show()
-
-    @staticmethod
     def plot_line(df: pd.DataFrame, x_feature_name: str, y_feature_name: str, x_label: str, y_label="Litry na 100 km"):
         plt.figure(figsize=(8, 5))
         plt.xlabel(x_label, fontsize=13)
@@ -110,20 +89,6 @@ class CarsUtils:
         sns.pointplot(x=x_feature_name, y=df[y_feature_name], data=df, color="#0487c4")
         plt.xlabel(x_label, fontsize=13)
         plt.ylabel(y_label, fontsize=13)
-        plt.show()
-
-    @staticmethod
-    def plot_history(history):
-        hist = pd.DataFrame(history.history)
-        hist['epoch'] = history.epoch
-
-        plt.figure(figsize=(8, 5))
-        plt.xlabel('Liczba epok', fontsize=13)
-        plt.ylabel('Błąd [litry na 100 km]', fontsize=13)
-        sns.lineplot(x=hist['epoch'], y=hist['mean_squared_error'], label="Średni błąd kwadratowy (MSE)", color="#0487c4")
-        sns.lineplot(x=hist['epoch'], y=hist['loss'], label="Średni błąd bezwzględny (MAE)", color="#ffa500")
-        plt.ylim([0, 20])
-        plt.legend()
         plt.show()
 
     @staticmethod
@@ -192,21 +157,17 @@ def main():
     mse = sklearn.metrics.mean_squared_error(test_labels, test_predictions)
     print("Mean Squared Error on Test Set: ", round(mse, 2))
 
-    # print(f"Testing set Mean Absolute Error: {round(loss, 2)} Litres per 100 km")
-    # print(f"Testing set Mean Squared Error: {round(mse, 2)} Litres per 100 km")
-
-    # test_predictions = model.predict(test_data).flatten()
     error = test_predictions - test_labels
 
     # Visualisations
-    # CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
-    # CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
-    # CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
-    # CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
-    # CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
-    # CarsUtils.plot_point(train_data, origin, "horsepower", labels[6], labels[3])
+    CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
+    CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
+    CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
+    CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
+    CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
+    CarsUtils.plot_point(train_data, origin, "horsepower", labels[6], labels[3])
     CarsUtils.plot_predicted_vs_true(test_predictions, test_labels)
-    # CarsUtils.plot_regular_histogram(error)
+    CarsUtils.plot_regular_histogram(error)
 
     return 0
 
