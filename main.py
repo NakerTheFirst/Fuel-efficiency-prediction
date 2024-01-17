@@ -53,19 +53,6 @@ class CarsUtils:
         return df
 
     @staticmethod
-    def build_model(df):
-        model = keras.Sequential([
-            layers.Dense(64, activation=tf.nn.relu, input_shape=[len(df.keys())]),
-            layers.Dense(64, activation=tf.nn.relu),
-            layers.Dense(1)
-        ])
-        # Change the hyperparameters later here
-        optimiser = tf.keras.optimizers.RMSprop(0.005)
-        model.compile(loss='mean_absolute_error', optimizer=optimiser, metrics='mean_squared_error')
-
-        return model
-
-    @staticmethod
     def plot_feature_vs_mpg(df, feature, label_name):
         plt.figure(figsize=(6, 3.5))
         sns.scatterplot(x=feature, y="litres_per_100km", data=df, color="#0487c4")
