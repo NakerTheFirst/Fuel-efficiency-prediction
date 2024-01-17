@@ -2,11 +2,13 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sklearn.metrics
 from sklearn import preprocessing
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
 
 
 class CarsUtils:
@@ -159,13 +161,6 @@ class CarsUtils:
         plt.show()
 
 
-class PrintDot(keras.callbacks.Callback):
-    def on_epoch_end(self, epoch, logs):
-        if epoch % 100 == 0:
-            print('')
-        print('.', end='')
-
-
 def main():
     # General preprocessing
     file_path = "auto-mpg.data"
@@ -179,7 +174,6 @@ def main():
               "Przyspieszenie", "Rok produkcji", "Stany Zjednoczone", "Europa", "Japonia"]
     cols_order = ["litres_per_100km", "cylinders", "displacement", "horsepower", "weight", "accel", "model_year"]
     columns_to_normalise = ["displacement", "horsepower", "weight", "accel"]
-
     df_cars = df_cars.reindex(columns=cols_order)
 
     # Perform one-hot encoding on the categorical origin variable
@@ -187,42 +181,34 @@ def main():
     df_cars["Europe"] = (origin == 2) * 1.0
     df_cars["Japan"] = (origin == 3) * 1.0
 
-    # Split the data
     train_data, test_data = train_test_split(df_cars, test_size=0.20, random_state=42)
-
     train_labels = train_data.pop("litres_per_100km")
     test_labels = test_data.pop("litres_per_100km")
 
-    # Inspect the data
-    train_stats = train_data.describe()
-    train_stats = train_stats.transpose()
+    print(train_data.to_string())
 
     CarsUtils.normalise_data(train_data, columns_to_normalise)
     CarsUtils.normalise_data(test_data, columns_to_normalise)
 
-    # Build the model
-    model = CarsUtils.build_model(train_data)
+    # Build & train the model
+    linear_model = LinearRegression()
+    linear_model.fit(train_data, train_labels)
 
-    # Train the model
-    epochs = 1000
-    early_stop = keras.callbacks.EarlyStopping(monitor='loss', patience=15)
+    # Extracting coefficients
+    coefficients = linear_model.coef_
+    intercept = linear_model.intercept_
+    print("Coefficients:", coefficients)
+    print("Intercept:", intercept)
 
-    hstr = model.fit(train_data, train_labels, epochs=epochs, callbacks=[early_stop, PrintDot()])
+    # Evaluate the model on a test set
+    test_predictions = linear_model.predict(test_data)
+    mse = sklearn.metrics.mean_squared_error(test_labels, test_predictions)
+    print("Mean Squared Error on Test Set: ", round(mse, 2))
 
-    print()
-    hist = pd.DataFrame(hstr.history)
-    hist['epoch'] = hstr.epoch
-    print(hist.tail())
+    # print(f"Testing set Mean Absolute Error: {round(loss, 2)} Litres per 100 km")
+    # print(f"Testing set Mean Squared Error: {round(mse, 2)} Litres per 100 km")
 
-    CarsUtils.plot_history(hstr)
-
-    # Test on test dataset
-    loss, mse = model.evaluate(test_data, test_labels, verbose=0)
-
-    print(f"Testing set Mean Absolute Error: {round(loss, 2)} Litres per 100 km")
-    print(f"Testing set Mean Squared Error: {round(mse, 2)} Litres per 100 km")
-
-    test_predictions = model.predict(test_data).flatten()
+    # test_predictions = model.predict(test_data).flatten()
     error = test_predictions - test_labels
 
     # Visualisations
@@ -233,11 +219,7 @@ def main():
     # CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
     # CarsUtils.plot_point(train_data, origin, "horsepower", labels[6], labels[3])
     CarsUtils.plot_predicted_vs_true(test_predictions, test_labels)
-    CarsUtils.plot_regular_histogram(error)
-
-    # Visualisations not used in report
-    # CarsUtils.plot_histogram(train_data, "litres_per_100km", "Litry na 100 km")
-    # CarsUtils.plot_countplot(train_data, "model_year", "Rok produkcji")
+    # CarsUtils.plot_regular_histogram(error)
 
     return 0
 
