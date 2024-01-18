@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import sklearn.metrics
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.linear_model import LinearRegression
 
 
 class CarsUtils:
@@ -137,8 +137,6 @@ def main():
     train_labels = train_data.pop("litres_per_100km")
     test_labels = test_data.pop("litres_per_100km")
 
-    print(train_data.to_string())
-
     CarsUtils.normalise_data(train_data, columns_to_normalise)
     CarsUtils.normalise_data(test_data, columns_to_normalise)
 
@@ -160,14 +158,11 @@ def main():
     error = test_predictions - test_labels
 
     # Visualisations
-    CarsUtils.plot_correlation_heatmap(train_data.iloc[:, :-3], labels)
-    CarsUtils.plot_feature_vs_mpg(train_data, "weight", "Waga pojazdu")
-    CarsUtils.plot_feature_vs_mpg(train_data, "model_year", "Rok produkcji")
-    CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
-    CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
-    CarsUtils.plot_point(train_data, origin, "horsepower", labels[6], labels[3])
-    CarsUtils.plot_predicted_vs_true(test_predictions, test_labels)
-    CarsUtils.plot_regular_histogram(error)
+    # CarsUtils.plot_line(train_data, "model_year", "litres_per_100km", "Rok produkcji")
+    # CarsUtils.plot_point(train_data, origin, "litres_per_100km", "Miejsce pochodzenia", labels[0])
+    # CarsUtils.plot_point(train_data, origin, "horsepower", "Miejsce pochodzenia", labels[3])
+    # CarsUtils.plot_predicted_vs_true(test_predictions, test_labels)
+    # CarsUtils.plot_regular_histogram(error)
 
     return 0
 
