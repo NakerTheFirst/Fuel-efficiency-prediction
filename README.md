@@ -28,7 +28,7 @@ The project includes data preprocessing, exploratory data analysis, and the impl
 <br>
 
 <p align="center"><img width="698" src="https://github.com/NakerTheFirst/Fuel-efficiency-prediction/blob/main/evaluation_metrics.png" alt="Image of a table of MSE error evaluation for different regression methods"></p>
-<p align="center"><a href="report.pdf">Table 2.<alt="Report link"></a> Minimum Squared Error, intercept and coefficients comparison for different regression types</p>
+<p align="center"><a href="report.pdf">Table 2.<alt="Report link"></a> Mean Squared Error, intercept and coefficients comparison for different regression types</p>
 
 ## Installation
 To run this project, you need Python installed along with the following libraries:
